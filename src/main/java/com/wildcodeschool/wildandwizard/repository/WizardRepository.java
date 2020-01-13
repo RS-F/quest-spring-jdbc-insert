@@ -9,8 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.wildcodeschool.wildandwizard.entity.Wizard;
-
-import util.JdbcUtils;
+import com.wildcodeschool.wildandwizard.util.JdbcUtils;
 
 public class WizardRepository {
 

@@ -20,7 +20,8 @@ public class SchoolRepository {
 	public School save(String name, Long capacity, String country) {
 		Connection connection = null;
 		PreparedStatement statement = null;
-
+		ResultSet generatedKeys = null;
+		
 		try {
 			connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 			statement = connection.prepareStatement("INSERT INTO school (name, capacity, country) VALUES (?, ?, ?)",
@@ -33,7 +34,7 @@ public class SchoolRepository {
 				throw new SQLException("failed to insert data");
 			}
 
-			ResultSet generatedKeys = statement.getGeneratedKeys();
+			generatedKeys = statement.getGeneratedKeys();
 
 			if (generatedKeys.next()) {
 				Long id = generatedKeys.getLong(1);
@@ -44,6 +45,7 @@ public class SchoolRepository {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
+            JdbcUtils.closeResultSet(generatedKeys);
 			JdbcUtils.closeStatement(statement);
 			JdbcUtils.closeConnection(connection);
 		}
