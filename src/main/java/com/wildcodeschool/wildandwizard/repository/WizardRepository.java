@@ -1,8 +1,16 @@
 package com.wildcodeschool.wildandwizard.repository;
 
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import com.wildcodeschool.wildandwizard.entity.Wizard;
 
-import java.sql.*;
+import util.JdbcUtils;
 
 public class WizardRepository {
 
@@ -13,11 +21,14 @@ public class WizardRepository {
     public Wizard save(String firstName, String lastName, Date birthday,
                        String birthPlace, String biography, boolean muggle) {
 
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
         try {
-            Connection connection = DriverManager.getConnection(
+            connection = DriverManager.getConnection(
                     DB_URL, DB_USER, DB_PASSWORD
             );
-            PreparedStatement statement = connection.prepareStatement(
+            statement = connection.prepareStatement(
                     "INSERT INTO wizard (first_name, last_name, birthday, birth_place, biography, is_muggle) VALUES (?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS
             );
@@ -32,7 +43,7 @@ public class WizardRepository {
                 throw new SQLException("failed to insert data");
             }
 
-            ResultSet generatedKeys = statement.getGeneratedKeys();
+            generatedKeys = statement.getGeneratedKeys();
 
             if (generatedKeys.next()) {
                 Long id = generatedKeys.getLong(1);
@@ -43,6 +54,10 @@ public class WizardRepository {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            JdbcUtils.closeResultSet(generatedKeys);
+            JdbcUtils.closeStatement(statement);
+            JdbcUtils.closeConnection(connection);
         }
         return null;
     }
